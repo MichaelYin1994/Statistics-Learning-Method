@@ -5,7 +5,11 @@ title:关于专业方面想要阅读的相关书籍
 在此记录，马克以备遗忘。
 
 ---
+
+===
 第一部分：Python学习部分
+===
+
 
 Python入门书籍推荐：
 
@@ -31,8 +35,9 @@ Pyhton进阶书籍：
 3. 《算法导论》
 
 
-
+===
 第二部分：机器学习相关学习资料部分
+===
 
 1）机器学习入门读物：
 《机器学习实战》[2]：利用Python实现的入门书籍。书中给出了比较有名的几个机器学习算法，包括：Support Vector Machine，Logistic Regression，Decision Tree等等算法的非常浅显的介绍（不涉及深入的数学知识）以及Python代码的实现。
@@ -63,7 +68,7 @@ Pyhton进阶书籍：
 3）控制类相关书籍：
 
 
-
+---
 [1] 维基百科：https://en.wikipedia.org/wiki/Machine_learning
 [2] Peter Harrington, 李锐等. 机器学习实战[M]. 人民邮电出版社, 2013.
 [3] 李航. 统计学习方法[M]. 清华大学出版社, 2012.
@@ -73,3 +78,4 @@ Pyhton进阶书籍：
 [7] Hastie T, Friedman J, Tibshirani R. The Elements of Statistical Learning[J]. Journal of the Royal Statistical Society, 2001, 167(1):192-192.
 [8] org.cambridge.ebooks.online.book.Author@ea. Deep Learning[M].
 [9] Boyd S, Vandenberghe L. Convex Optimization[M]. 世界图书出版公司, 2013.
+---
