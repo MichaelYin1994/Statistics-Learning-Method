@@ -60,7 +60,6 @@ Pyhton进阶书籍：
 
 《Convex Optimization》[9]：作者是大名鼎鼎的Boyd，也就是Boyd族算法的创始人，也是凸优化领域权威的书籍。  
 《OpenIntro Statistics Third Edition》 ：讲述非常基础的概率论与统计学的一本书。  
-《Introductory Lectures on Convex Programming》  
 《概率论与数理统计（陈希孺版）》
 
 
