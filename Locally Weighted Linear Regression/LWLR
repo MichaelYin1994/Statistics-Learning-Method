@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov  6 22:36:08 2017
+
+@author: MichaelYin
+"""
+import numpy as np
+from numpy.linalg import inv
+from numpy.linalg import det
+
+# 输入X,y为数据矩阵，为样本数*特征数，注意要提前加上全1列
+# calcPoint参数为想要计算的点的坐标，与X是一样的排布，参数k
+# 由人为指定
+def LWLR(calcPoint, X, y, k=1):
+    
+    # 计算样本的个数，开辟权值w矩阵的存储空间
+    sampleNums = len(X)
+    w = np.eye(sampleNums)
+    
+    # 计算X中每个样本到calcPoint的距离的权值， 权值矩阵的计算
+    # 采用高斯函数，也可采用其他距离计算公式
+    for i in range(sampleNums):
+        
+        w[i, i] = ( X[i] - calcPoint )**2
+        w[i, i] = np.sum(w[i, i])
+        w[i, i] = np.sqrt(w[i, i])
+        
+        w[i,i]=np.exp( w[i, i]/(-2*(k**2)) )
+    
+    XT = (X.T).copy()
+    wHat = XT.dot(w)
+    wHat = wHat.dot(X)
+    if det(wHat) == 0:
+        print("Not invertable")
+        return
+        
+    wHat = inv(wHat)
+    wHat = wHat.dot(XT)
+    wHat = wHat.dot(w)
+    wHat = wHat.dot(y)
+    
+    result = calcPoint.dot(wHat)
+    return result
