@@ -1,0 +1,163 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 15 18:32:03 2017
+
+@author: Administrator
+"""
+
+import numpy as np
+
+class singleDecisionStump():
+    
+    def __init__(self, dataMatrix, dimen, threshVal, threshIneq):
+        self.dataMatrix = dataMatrix
+        self. dimen = dimen
+        self.threshVal = threshVal
+        self.threshIneq = threshIneq
+        
+    def DS(self):
+        # 训练一个Decision Stump， Dimen代表对第Dimen个特征做Decision Stump
+        # threshVal代表阈值， threshIneq代表取全-1类的方向， "lt"关键字代表
+        # threshVal左边全取-1
+        self.resultReturn = np.ones( (self.dataMatrix.shape[0], 1) )
+        
+        if self.threshIneq == 'lt':
+            self.resultReturn[ self.dataMatrix[:, self.dimen]<=self.threshVal ] = -1
+        else:
+            self.resultReturn[ self.dataMatrix[:, self.dimen]>=self.threshVal ] = -1
+        
+        return self.resultReturn
+
+class adaboost():
+    
+    def __init__(self, dataMatrix, dataLabels, stepNums=10, baseLearnerNums=10):
+        
+        self.dataMatrix = dataMatrix
+        self.dataLabels = dataLabels
+        self.baseLearnerNums = baseLearnerNums
+        self.dataMatrix = np.array(self.dataMatrix, dtype='float64')
+        self.dataLabels.shape = (len(self.dataLabels), -1)
+        self.sampleNums, self.featureNums = self.dataMatrix.shape
+        self.stepNums = stepNums # stepNums代表遍历特征的step的数量值
+        
+        
+    def buildDecisionStump(self, D):
+
+        self.bestStump = {}
+        self.bestPredict = np.zeros((self.sampleNums, 1))
+        
+        self.minError = np.inf
+        
+        for feature in range(self.featureNums):
+            # 遍历每一个特征， 计算每一个特征的弱分类器Decision Stump，\
+            # 返回的是最佳的那个特征的Decision Stump，然后更新权值矩阵w
+            
+            self.featureValMin = self.dataMatrix[:, feature].min()
+            self.featureValMax = self.dataMatrix[:, feature].max()
+            
+            self.stepSize = ( self.featureValMax-self.featureValMin )/self.stepNums
+            
+            for j in range(-1, int(self.stepNums)+1):
+                # j代表Decision Stump切开的阈值步长，取-1代表对于一个特征\
+                # 对应特征的类标记全取-1的情况
+                
+                for inequal in ['lt', 'gt']:
+                    # lt代表小于threshVal取-1， gt代表大于threshVal全取-1
+                    self.threshVal = ( self.featureValMin + float(j)*self.stepSize )
+                    
+                    singleDS = singleDecisionStump(self.dataMatrix, feature, self.threshVal, inequal)
+                    self.resultScalar = singleDS.DS()
+                    
+                    self.resultScalar.shape = (len(self.resultScalar), -1)
+                    
+                    # errorScalar代表分类错误的量度
+                    self.errorScalar = np.ones( (self.sampleNums, 1) )
+                    self.errorScalar[ self.resultScalar==self.dataLabels ] = 0
+                    
+                    # 计算基分类器权系数weightedError,对应《统计学习方法》中所谓的e_m
+                    self.weightedError = D.T.dot(self.errorScalar)
+                    
+                    if self.weightedError < self.minError:
+                        self.minError = self.weightedError
+                        self.bestPredict = self.resultScalar
+                        self.bestStump['dim'] = feature
+                        self.bestStump['threshVal'] = self.threshVal
+                        self.bestStump['ineq'] = inequal
+                        self.bestStump['weightedError'] = self.weightedError
+                        self.bestStump['predict'] = self.bestPredict
+                        
+        return self.bestStump
+
+    def fit(self):
+
+        self.baseLearner = []
+        
+        D = np.ones( (self.sampleNums, 1) )/self.sampleNums
+        
+        
+        for i in range(self.baseLearnerNums):
+            
+            print("No.{} base learner.".format(i))
+            
+            self.classifier = self.buildDecisionStump(D)
+            # 计算基学习器权重alpha
+            self.alpha = 0.5 * np.log( (1 - self.classifier['weightedError'])/self.classifier['weightedError'] )
+            self.classifier['alpha'] = self.alpha
+            
+            self.baseLearner.append(self.classifier)
+            # 更新数据权值矩阵D
+            temp = np.exp(-self.classifier['alpha']*self.dataLabels*self.classifier['predict'])
+            Z = D.T.dot(temp)
+            D = D / Z
+            D = D * temp
+        
+        return self.baseLearner
+    
+    def sign(self, X):
+        
+        ind = X>=0
+        X[ind] = 1
+        X[~ind] = -1
+        
+        return X
+    
+    def predict(self, dataTest):
+        
+        result = np.zeros( (len(dataTest), 1) )
+        
+        for i in self.baseLearner:
+            
+            temp = np.ones( (len(dataTest), 1) )
+            if i['ineq'] == 'lt':
+                
+                ind = dataTest[:, i['dim']]<i['threshVal']
+                temp[ind] = -1
+            else:
+                
+                ind = dataTest[:, i['dim']]>i['threshVal']
+                temp[ind] = -1
+            
+            result = result + i['alpha']*temp
+        
+        result = self.sign(result)
+        
+        return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
